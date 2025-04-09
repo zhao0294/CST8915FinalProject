@@ -13,25 +13,6 @@ services:
       retries: 5
     networks:
       - backend_services
-  rabbitmq:
-    image: rabbitmq:3.11.17-management-alpine
-    container_name: 'rabbitmq'
-    restart: always
-    environment:
-      - "RABBITMQ_DEFAULT_USER=username"
-      - "RABBITMQ_DEFAULT_PASS=password"
-    ports:
-      - 15672:15672
-      - 5672:5672
-    healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    volumes:
-      - ../../rabbitmq_enabled_plugins:/etc/rabbitmq/enabled_plugins
-    networks:
-      - backend_services
   order-service:
     image: ramymohamed/order-service-l8:latest
     container_name: 'order-service'
@@ -44,19 +25,12 @@ services:
       timeout: 10s
       retries: 5
     environment:
-      - ORDER_QUEUE_HOSTNAME=rabbitmq
-      - ORDER_QUEUE_PORT=5672
-      - ORDER_QUEUE_USERNAME=username
-      - ORDER_QUEUE_PASSWORD=password
-      - ORDER_QUEUE_NAME=orders
-      - ORDER_QUEUE_RECONNECT_LIMIT=3
+      - AZURE_SERVICE_BUS_CONNECTION_STRING=${AZURE_SERVICE_BUS_CONNECTION_STRING}
+      - AZURE_SERVICE_BUS_QUEUE_NAME=${AZURE_SERVICE_BUS_QUEUE_NAME}
     networks:
       - backend_services
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
   makeline-service:
-    image: ramymohamed/makeline-service-l8:latest 
+    image: ramymohamed/makeline-service-l8:latest
     container_name: 'makeline-service'
     restart: always
     ports:
@@ -67,18 +41,14 @@ services:
       timeout: 10s
       retries: 5
     environment:
-      - ORDER_QUEUE_URI=amqp://rabbitmq:5672
-      - ORDER_QUEUE_USERNAME=username
-      - ORDER_QUEUE_PASSWORD=password
-      - ORDER_QUEUE_NAME=orders
-      - ORDER_DB_URI=mongodb://mongodb:27017
-      - ORDER_DB_NAME=orderdb
-      - ORDER_DB_COLLECTION_NAME=orders
+      - AZURE_SERVICE_BUS_CONNECTION_STRING=${AZURE_SERVICE_BUS_CONNECTION_STRING}
+      - AZURE_SERVICE_BUS_QUEUE_NAME=${AZURE_SERVICE_BUS_QUEUE_NAME}
+      - ORDER_DB_URI=${ORDER_DB_URI}
+      - ORDER_DB_NAME=${ORDER_DB_NAME}
+      - ORDER_DB_COLLECTION_NAME=${ORDER_DB_COLLECTION_NAME}
     networks:
       - backend_services
     depends_on:
-      rabbitmq:
-        condition: service_healthy
       mongodb:
         condition: service_healthy
   virtual-customer:
@@ -86,8 +56,8 @@ services:
     container_name: 'virtual-customer'
     restart: always
     environment:
-      - ORDER_SERVICE_URL=http://order-service:3000/
-      - ORDERS_PER_HOUR=3600
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL}
+      - ORDERS_PER_HOUR=${ORDERS_PER_HOUR}
     networks:
       - backend_services
     depends_on:
