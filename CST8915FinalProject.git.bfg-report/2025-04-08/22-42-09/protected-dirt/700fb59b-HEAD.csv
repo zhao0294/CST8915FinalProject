@@ -1,0 +1,6 @@
+67aea0abe2a78d40f913285d6a141a5dbda3a6d5,DELETE,regular-file,makeline-service-L8/.env,327,
+a243fa8f5134a5a165ce8fb869fb456774c8cfc8,DELETE,regular-file,order-service-L8/.env,229,
+ebcfaf0d3d77ec65775c88a1d2da666f1a63b1a3,DELETE,regular-file,store-admin-L8/.env,615,
+a243fa8f5134a5a165ce8fb869fb456774c8cfc8,DELETE,regular-file,store-front-L8/.env,229,
+67aea0abe2a78d40f913285d6a141a5dbda3a6d5,DELETE,regular-file,virtual-customer-L8/.env,327,
+9c96d7299da267a23339ed01eb3433c6f52c8fcf,DELETE,regular-file,virtual-worker-L8/.env,462,
